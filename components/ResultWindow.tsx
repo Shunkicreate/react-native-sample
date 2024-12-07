@@ -2,7 +2,7 @@ import React from "react";
 import JankenCard from "./JankenCard";
 // import "./ResultWindow.css";
 import { ChoiceType } from "@/app/types/models";
-import { View } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 
 interface ResultWindowProps {
   showResult: {
@@ -24,8 +24,7 @@ const ResultWindow: React.FC<ResultWindowProps> = ({
   const backgroundColor = "#d3d3d3";
 
   return (
-    <View className="overlay">
-    {/* <View className="overlay" onClick={closeResult}> */}
+    <TouchableOpacity className="overlay" onPress={closeResult}>
       <View className="result-window" style={{ backgroundColor }}>
         <View className="result-container">
           {/* 相手の手 */}
@@ -38,24 +37,26 @@ const ResultWindow: React.FC<ResultWindowProps> = ({
           </View>
         </View>
 
-        <p className="result-text">
-          {showResult.result === "win"
-            ? "WIN"
-            : showResult.result === "lose"
-            ? "LOSE"
-            : `あいこ${drawCount > 0 ? `（${drawCount}/3）` : "3/3"}`}
-        </p>
+        <View>
+          <Text>
+            {showResult.result === "win"
+              ? "WIN"
+              : showResult.result === "lose"
+              ? "LOSE"
+              : `あいこ${drawCount > 0 ? `（${drawCount}/3）` : "3/3"}`}
+          </Text>
+        </View>
 
         <View className="result-icon">
           {(showResult.result === "win" || showResult.result === "reset") && (
-            <span className="star-icon">
-              ★<span className="plus-minus">+1</span>
-            </span>
+            <Text className="star-icon">
+              ★<Text className="plus-minus">+1</Text>
+            </Text>
           )}
           {showResult.result === "lose" && (
-            <span className="heart-icon">
-              ❤<span className="plus-minus">-1</span>
-            </span>
+            <Text className="heart-icon">
+              ❤<Text className="plus-minus">-1</Text>
+            </Text>
           )}
         </View>
 
@@ -67,7 +68,7 @@ const ResultWindow: React.FC<ResultWindowProps> = ({
           />
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

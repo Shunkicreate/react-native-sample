@@ -1,13 +1,9 @@
 import { useState, useEffect } from "react";
 import { ChoiceType, choices } from "@/app/types/models";
 
-export const useJankenGame = (
-  onBackClick: () => void,
-  playerChoices: ChoiceType[]
-) => {
+export const useJankenGame = (onBackClick: () => void) => {
   const [computerChoices, setComputerChoices] = useState<ChoiceType[]>([]);
-  const [playerChoicesState, setPlayerChoicesState] =
-    useState<ChoiceType[]>(playerChoices);
+  const [playerChoices, setPlayerChoices] = useState<ChoiceType[]>([]);
   const [showScoreWindow, setShowScoreWindow] = useState<boolean>(false);
   const [showResult, setShowResult] = useState<{
     playerChoice: ChoiceType;
@@ -56,9 +52,43 @@ export const useJankenGame = (
 
   const getRandomChoices = (
     array: ChoiceType[],
-    count: number
+    count: number,
+    winCount: number
   ): ChoiceType[] => {
-    const shuffled = array.sort(() => Math.random() - 0.5);
+    const otherWeight = 100;
+    const midWeight = Math.min(150, Math.max(30 * (winCount - 2), 0));
+    const bigWeight = Math.min(200, Math.max(0, 60 * (winCount - 10)));
+    const barrierWeight = Math.max(
+      15,
+      Math.min(otherWeight, midWeight, bigWeight)
+    );
+
+    const weightedArray = [
+      ...Array(otherWeight).fill(
+        array.find((choice) => choice.name === "グー")
+      ),
+      ...Array(otherWeight).fill(
+        array.find((choice) => choice.name === "チョキ")
+      ),
+      ...Array(otherWeight).fill(
+        array.find((choice) => choice.name === "パー")
+      ),
+      ...Array(barrierWeight).fill(
+        array.find((choice) => choice.name === "バリアー")
+      ),
+      ...Array(bigWeight).fill(array.find((choice) => choice.name === "村正")),
+      ...Array(bigWeight).fill(array.find((choice) => choice.name === "隕石")),
+      ...Array(bigWeight).fill(array.find((choice) => choice.name === "愛")),
+      ...Array(midWeight).fill(
+        array.find((choice) => choice.name === "ザリガニ")
+      ),
+      ...Array(midWeight).fill(
+        array.find((choice) => choice.name === "金の玉")
+      ),
+      ...Array(midWeight).fill(array.find((choice) => choice.name === "札")),
+    ].filter(Boolean) as ChoiceType[];
+
+    const shuffled = weightedArray.sort(() => Math.random() - 0.5);
     return shuffled.slice(0, count);
   };
 
@@ -70,7 +100,8 @@ export const useJankenGame = (
 
   useEffect(() => {
     if (computerChoices.length === 0) {
-      setComputerChoices(getRandomChoices(choices, 3));
+      setComputerChoices(getRandomChoices(choices, 3, winCount));
+      setPlayerChoices(getRandomChoices(choices, 3, winCount));
     }
   }, []);
 
@@ -78,17 +109,17 @@ export const useJankenGame = (
     const randomComputerIndex = Math.floor(
       Math.random() * computerChoices.length
     );
-    const playerChoice = playerChoicesState[playerIndex];
+    const playerChoice = playerChoices[playerIndex];
     const computerChoice = computerChoices[randomComputerIndex];
     const result = getResult(playerChoice, computerChoice);
 
-    const updatedPlayerChoices = [...playerChoicesState];
+    const updatedPlayerChoices = [...playerChoices];
     const updatedComputerChoices = [...computerChoices];
 
     updatedPlayerChoices[playerIndex] = computerChoice;
     updatedComputerChoices[randomComputerIndex] = playerChoice;
 
-    setPlayerChoicesState(updatedPlayerChoices);
+    setPlayerChoices(updatedPlayerChoices);
     setComputerChoices(updatedComputerChoices);
 
     if (result === "win") {
@@ -105,8 +136,8 @@ export const useJankenGame = (
   };
 
   const resetGame = () => {
-    setPlayerChoicesState(playerChoices);
-    setComputerChoices(getRandomChoices(choices, 3));
+    setPlayerChoices(playerChoices);
+    setComputerChoices(getRandomChoices(choices, 3, winCount));
     setLife(5);
     setWinCount(0);
     setDrawCount(0);
@@ -118,9 +149,35 @@ export const useJankenGame = (
     onBackClick();
   };
 
+  const closeResult = () => {
+    setShowResult(null);
+    if (life === 0) {
+      setShowScoreWindow(true);
+    }
+
+    if (drawCount === 0) {
+      getRandomEnemyImage();
+      // setIsEnemyImageAnimating(true);
+      setIsShuffling(true);
+      setTimeout(() => {
+        setComputerChoices(getRandomChoices(choices, 3, winCount));
+        setTimeout(() => setIsShuffling(false), 600);
+        //   setTimeout(() => setIsEnemyImageAnimating(false), 600);
+      }, 100);
+    }
+
+    if (life <= 0) {
+      setTimeout(() => setShowScoreWindow(true), 100);
+    }
+
+    //   if (slidingInIndex !== null) {
+    //     setTimeout(() => setSlidingInIndex(null), 600);
+    //   }
+  };
+
   return {
     computerChoices,
-    playerChoicesState,
+    playerChoices,
     showResult,
     showScoreWindow,
     life,
@@ -130,5 +187,6 @@ export const useJankenGame = (
     handlePlayerChoice,
     resetGame,
     closeScoreWindow,
+    closeResult
   };
 };

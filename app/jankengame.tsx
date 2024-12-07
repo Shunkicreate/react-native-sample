@@ -16,14 +16,13 @@ import { ChoiceType } from "./types/models";
 
 export default function JankenGame({
   onBackClick,
-  playerChoices,
 }: {
   onBackClick: () => void;
   playerChoices: ChoiceType[];
 }) {
   const {
     computerChoices,
-    playerChoicesState,
+    playerChoices,
     showResult,
     showScoreWindow,
     life,
@@ -33,11 +32,8 @@ export default function JankenGame({
     handlePlayerChoice,
     resetGame,
     closeScoreWindow,
-  } = useJankenGame(onBackClick, playerChoices);
-
-  const closeResult = () => {
-    resetGame();
-  };
+    closeResult,
+  } = useJankenGame(onBackClick);
 
   return (
     <View style={styles.container}>
@@ -55,6 +51,7 @@ export default function JankenGame({
 
       {/* Computer Cards */}
       <View style={styles.cardContainer}>
+        <Text style={styles.enemyText}>相手の手</Text>
         {(computerChoices || []).map((choice, index) => (
           <JankenCard
             key={index}
@@ -67,7 +64,8 @@ export default function JankenGame({
 
       {/* Player Cards */}
       <View style={styles.cardContainer}>
-        {(playerChoicesState || []).map((choice, index) => (
+        <Text style={styles.enemyText}>あなたの手</Text>
+        {(playerChoices || []).map((choice, index) => (
           <JankenCard
             key={index}
             choice={choice}

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { View, Text, TextInput } from "react-native";
+import { Link } from 'expo-router';
 
 interface ScoreWindowProps {
   winCount: number;
@@ -94,7 +95,10 @@ const ScoreWindow: React.FC<ScoreWindowProps> = ({
             alignItems: "center",
           }}
         >
-          <button
+            <Link href="/">
+                トップに戻る
+            </Link>
+          {/* <Button
             onClick={submitScore}
             style={{
               padding: "10px",
@@ -109,8 +113,8 @@ const ScoreWindow: React.FC<ScoreWindowProps> = ({
             disabled={isSubmitting}
           >
             {isSubmitting ? "登録中..." : "スコアを登録"}
-          </button>
-          <button
+          </Button>
+          <Button
             onClick={closeScoreWindow}
             style={{
               marginTop: "10px",
@@ -126,7 +130,7 @@ const ScoreWindow: React.FC<ScoreWindowProps> = ({
             disabled={isSubmitting}
           >
             登録せずに戻る
-          </button>
+          </Button> */}
         </View>
       </View>
     </View>
