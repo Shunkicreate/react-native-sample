@@ -16,6 +16,7 @@ export default function Index() {
       <Link href="/about">
         Go to About screen
       </Link>
+      <Link href={"/jankengame"}>Go to Janken Game</Link>
       
       <Counter />
       <ShowDog />
